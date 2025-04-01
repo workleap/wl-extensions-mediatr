@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: windows-latest
+    runs-on: [self-hosted, idp]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,9 +37,6 @@ jobs:
           echo "workleap_nuget_api_key=$WORKLEAP_NUGET_API_KEY" >> $GITHUB_OUTPUT
 
       - uses: actions/setup-dotnet@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "6.0.x"
 
       - run: ./Build.ps1
         shell: pwsh

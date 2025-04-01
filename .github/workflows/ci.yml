@@ -50,10 +50,6 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ steps.get_secrets.outputs.ado_pat }}
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "6.0.x"
-
       - run: ./Build.ps1
         shell: pwsh
         env:
