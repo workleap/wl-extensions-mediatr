@@ -2,8 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../Workleap.Extensions.MediatR.snk</AssemblyOriginatorKeyFile>
