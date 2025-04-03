@@ -4,12 +4,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Workleap.Extensions.MediatR.Analyzers.Tests;
 
-public abstract class BaseAnalyzerTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, XUnitVerifier>
+public abstract class BaseAnalyzerTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, DefaultVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     private const string CSharp10GlobalUsings = @"
@@ -33,7 +32,7 @@ global using MediatR;";
         this.TestState.Sources.Add(CSharp10GlobalUsings);
         this.TestState.Sources.Add(MediatRGlobalUsings);
 
-        this.TestState.ReferenceAssemblies = ReferenceAssemblies.Net.Net60;
+        this.TestState.ReferenceAssemblies = ReferenceAssemblies.Net.Net80;
 
         // Reference "Microsoft.Extensions.DependencyInjection" assembly
         this.TestState.AdditionalReferences.Add(typeof(IServiceCollection).Assembly);
@@ -57,6 +56,12 @@ global using MediatR;";
     public BaseAnalyzerTest<TAnalyzer> WithExpectedDiagnostic(DiagnosticDescriptor descriptor, int startLine, int startColumn, int endLine, int endColumn)
     {
         this.TestState.ExpectedDiagnostics.Add(new DiagnosticResult(descriptor).WithSpan(SourceFileName, startLine, startColumn, endLine, endColumn));
+        return this;
+    }
+
+    public BaseAnalyzerTest<TAnalyzer> WithExpectedDiagnostic(DiagnosticDescriptor descriptor, int locationIndex)
+    {
+        this.TestState.ExpectedDiagnostics.Add(new DiagnosticResult(descriptor).WithLocation(locationIndex));
         return this;
     }
 

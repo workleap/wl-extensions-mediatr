@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using MediatR;
 using MediatR.Pipeline;
@@ -67,6 +66,10 @@ public sealed class MediatorBuilder
             // See: https://github.com/jbogard/MediatR/pull/989#issuecomment-1883574379
             RegisterPreAndPostNonGenericClosedProcessors(configuration);
 
+            // Restore the previous behavior of registering generic handlers from before MediatR 12.4.1
+            // https://github.com/jbogard/MediatR/compare/v12.4.0...v12.4.1
+            configuration.RegisterGenericHandlers = true;
+
             // Allow developers to override default configuration if needed
             userDefinedConfigure?.Invoke(configuration);
         }
@@ -94,7 +97,6 @@ public sealed class MediatorBuilder
         configuration.BehaviorsToRegister.Add(new ServiceDescriptor(typeof(IStreamPipelineBehavior<,>), typeof(StreamRequestValidationBehavior<,>), ServiceLifetime.Singleton));
     }
 
-    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Keeping this close to where it's used")]
     private static readonly PropertyInfo? AssembliesToRegisterPropertyInfo = typeof(MediatRServiceConfiguration).GetProperty(
         name: "AssembliesToRegister",
         bindingAttr: BindingFlags.Instance | BindingFlags.NonPublic,
@@ -103,12 +105,11 @@ public sealed class MediatorBuilder
         types: Array.Empty<Type>(),
         modifiers: null);
 
-    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Keeping this close to where it's used")]
     private static readonly MethodInfo? ConnectImplementationsToTypesClosingMethodInfo = typeof(ServiceRegistrar).GetMethod(
         name: "ConnectImplementationsToTypesClosing",
         bindingAttr: BindingFlags.Static | BindingFlags.NonPublic,
         binder: null,
-        types: new[] { typeof(Type), typeof(IServiceCollection), typeof(IEnumerable<Assembly>), typeof(bool), typeof(MediatRServiceConfiguration) },
+        types: new[] { typeof(Type), typeof(IServiceCollection), typeof(IEnumerable<Assembly>), typeof(bool), typeof(MediatRServiceConfiguration), typeof(CancellationToken) },
         modifiers: null);
 
     private static void RegisterPreAndPostNonGenericClosedProcessors(MediatRServiceConfiguration configuration)
@@ -129,7 +130,7 @@ public sealed class MediatorBuilder
         var preProcessorServiceDescriptors = new ServiceCollection();
         ConnectImplementationsToTypesClosingMethodInfo.Invoke(obj: null, parameters: new object?[]
         {
-            typeof(IRequestPreProcessor<>), preProcessorServiceDescriptors, assembliesToRegister, true, configuration,
+            typeof(IRequestPreProcessor<>), preProcessorServiceDescriptors, assembliesToRegister, true, configuration, CancellationToken.None,
         });
         configuration.RequestPreProcessorsToRegister.AddRange(preProcessorServiceDescriptors);
 
@@ -138,7 +139,7 @@ public sealed class MediatorBuilder
         var postProcessorServiceDescriptors = new ServiceCollection();
         ConnectImplementationsToTypesClosingMethodInfo.Invoke(obj: null, parameters: new object?[]
         {
-            typeof(IRequestPostProcessor<,>), postProcessorServiceDescriptors, assembliesToRegister, true, configuration,
+            typeof(IRequestPostProcessor<,>), postProcessorServiceDescriptors, assembliesToRegister, true, configuration, CancellationToken.None,
         });
         configuration.RequestPostProcessorsToRegister.AddRange(postProcessorServiceDescriptors);
     }
