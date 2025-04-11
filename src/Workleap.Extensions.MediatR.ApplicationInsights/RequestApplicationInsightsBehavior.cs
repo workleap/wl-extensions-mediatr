@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using MediatR;
 using Microsoft.ApplicationInsights;
 
@@ -16,7 +16,7 @@ internal sealed class RequestApplicationInsightsBehavior<TRequest, TResponse> : 
 
     public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        return this._telemetryClient == null ? next() : this.HandleWithTelemetry(request, next);
+        return this._telemetryClient == null ? next(cancellationToken) : this.HandleWithTelemetry(request, next);
     }
 
     private async Task<TResponse> HandleWithTelemetry(TRequest request, RequestHandlerDelegate<TResponse> next)

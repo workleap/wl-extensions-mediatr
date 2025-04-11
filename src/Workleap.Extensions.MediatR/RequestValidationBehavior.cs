@@ -8,6 +8,6 @@ internal sealed class RequestValidationBehavior<TRequest, TResponse> : IPipeline
     public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         DataAnnotationsValidationHelper.Validate(request);
-        return next();
+        return next(cancellationToken);
     }
 }
