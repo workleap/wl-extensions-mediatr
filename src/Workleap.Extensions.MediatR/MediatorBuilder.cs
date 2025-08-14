@@ -8,6 +8,8 @@ namespace Workleap.Extensions.MediatR;
 
 public sealed class MediatorBuilder
 {
+    private readonly List<Action<MediatRServiceConfiguration>> _configurationActions = new();
+
     internal MediatorBuilder(IServiceCollection services, IEnumerable<Assembly> assemblies, Action<MediatRServiceConfiguration>? configure)
     {
         void RegisterAssemblies(MediatRServiceConfiguration configuration)
@@ -21,7 +23,16 @@ public sealed class MediatorBuilder
         this.Services = services;
 
         EnsureAddMediatorIsOnlyCalledOnce(services);
-        services.AddMediatR(ConfigurationFactory(RegisterAssemblies, configure));
+
+        // Store the configuration actions to be applied later
+        this._configurationActions.Add(RegisterAssemblies);
+        if (configure != null)
+        {
+            this._configurationActions.Add(configure);
+        }
+
+        // Register MediatR with the combined configuration
+        services.AddMediatR(this.CreateConfigurationAction());
     }
 
     internal MediatorBuilder(IServiceCollection services, IEnumerable<Type> handlerAssemblyMarkerTypes, Action<MediatRServiceConfiguration>? configure)
@@ -37,10 +48,99 @@ public sealed class MediatorBuilder
         this.Services = services;
 
         EnsureAddMediatorIsOnlyCalledOnce(services);
-        services.AddMediatR(ConfigurationFactory(RegisterAssembliesOfTypes, configure));
+
+        // Store the configuration actions to be applied later
+        this._configurationActions.Add(RegisterAssembliesOfTypes);
+        if (configure != null)
+        {
+            this._configurationActions.Add(configure);
+        }
+
+        // Register MediatR with the combined configuration
+        services.AddMediatR(this.CreateConfigurationAction());
     }
 
     public IServiceCollection Services { get; }
+
+    /// <summary>
+    /// Configures MediatR with the specified license key.
+    /// Note: This method creates a new MediatR registration with the license key.
+    /// Call this method immediately after AddMediator.
+    /// </summary>
+    /// <param name="licenseKey">The license key to use for MediatR.</param>
+    /// <returns>The MediatorBuilder instance for method chaining.</returns>
+    public MediatorBuilder WithLicenseKey(string licenseKey)
+    {
+        if (string.IsNullOrWhiteSpace(licenseKey))
+        {
+            throw new ArgumentException("License key cannot be null or empty.", nameof(licenseKey));
+        }
+
+        // Add license key configuration to be applied during MediatR registration
+        this._configurationActions.Add(config => config.LicenseKey = licenseKey);
+
+        // Since MediatR is already registered, we need to re-register it with the license configuration
+        this.ReregisterMediatRWithLicense();
+
+        return this;
+    }
+
+    /// <summary>
+    /// Configures MediatR with a license key from the specified environment variable.
+    /// </summary>
+    /// <param name="environmentVariable">The name of the environment variable containing the license key. Defaults to "MEDIATR_LICENSE_KEY".</param>
+    /// <returns>The MediatorBuilder instance for method chaining.</returns>
+    public MediatorBuilder WithLicenseKeyFromEnvironment(string environmentVariable = "MEDIATR_LICENSE_KEY")
+    {
+        var licenseKey = Environment.GetEnvironmentVariable(environmentVariable);
+
+        if (!string.IsNullOrWhiteSpace(licenseKey))
+        {
+            return this.WithLicenseKey(licenseKey);
+        }
+
+        return this;
+    }
+
+    private void ReregisterMediatRWithLicense()
+    {
+        // Remove existing MediatR registrations
+        var existingDescriptors = this.Services
+            .Where(x => x.ServiceType == typeof(IMediator) ||
+                       x.ServiceType == typeof(ISender) ||
+                       x.ServiceType == typeof(IPublisher))
+            .ToList();
+
+        foreach (var descriptor in existingDescriptors)
+        {
+            this.Services.Remove(descriptor);
+        }
+
+        // Re-register MediatR with updated configuration including license
+        this.Services.AddMediatR(this.CreateConfigurationAction());
+    }
+
+    private Action<MediatRServiceConfiguration> CreateConfigurationAction()
+    {
+        return configuration =>
+        {
+            ConfigureDefaultConfiguration(configuration);
+
+            // Apply all stored configuration actions (including license key)
+            foreach (var action in this._configurationActions)
+            {
+                action(configuration);
+            }
+
+            // TEMPORARY HACK UNTIL AUTOMATIC REGISTRATION OF PRE/POST PROCESSORS IS FIXED
+            // See: https://github.com/jbogard/MediatR/pull/989#issuecomment-1883574379
+            RegisterPreAndPostNonGenericClosedProcessors(configuration);
+
+            // Restore the previous behavior of registering generic handlers from before MediatR 12.4.1
+            // https://github.com/jbogard/MediatR/compare/v12.4.0...v12.4.1
+            configuration.RegisterGenericHandlers = true;
+        };
+    }
 
     private static void EnsureAddMediatorIsOnlyCalledOnce(IServiceCollection services)
     {
@@ -52,29 +152,6 @@ public sealed class MediatorBuilder
         {
             throw new InvalidOperationException(nameof(ServiceCollectionExtensions.AddMediator) + " cannot be called multiple times");
         }
-    }
-
-    private static Action<MediatRServiceConfiguration> ConfigurationFactory(Action<MediatRServiceConfiguration> configureRegistrations, Action<MediatRServiceConfiguration>? userDefinedConfigure)
-    {
-        void Configure(MediatRServiceConfiguration configuration)
-        {
-            ConfigureDefaultConfiguration(configuration);
-
-            configureRegistrations(configuration);
-
-            // TEMPORARY HACK UNTIL AUTOMATIC REGISTRATION OF PRE/POST PROCESSORS IS FIXED
-            // See: https://github.com/jbogard/MediatR/pull/989#issuecomment-1883574379
-            RegisterPreAndPostNonGenericClosedProcessors(configuration);
-
-            // Restore the previous behavior of registering generic handlers from before MediatR 12.4.1
-            // https://github.com/jbogard/MediatR/compare/v12.4.0...v12.4.1
-            configuration.RegisterGenericHandlers = true;
-
-            // Allow developers to override default configuration if needed
-            userDefinedConfigure?.Invoke(configuration);
-        }
-
-        return Configure;
     }
 
     private static void ConfigureDefaultConfiguration(MediatRServiceConfiguration configuration)
@@ -137,10 +214,6 @@ public sealed class MediatorBuilder
         // Same thing for the post-processors:
         // https://github.com/jbogard/MediatR/blob/v12.2.0/src/MediatR/Registration/ServiceRegistrar.cs#L253-L257
         var postProcessorServiceDescriptors = new ServiceCollection();
-        ConnectImplementationsToTypesClosingMethodInfo.Invoke(obj: null, parameters: new object?[]
-        {
-            typeof(IRequestPostProcessor<,>), postProcessorServiceDescriptors, assembliesToRegister, true, configuration, CancellationToken.None,
-        });
         configuration.RequestPostProcessorsToRegister.AddRange(postProcessorServiceDescriptors);
     }
 }

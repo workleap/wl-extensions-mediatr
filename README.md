@@ -34,6 +34,24 @@ builder.Services.AddMediator(
     typeof(Program).Assembly);
 ```
 
+### License configuration (MediatR 13+)
+
+If you're using MediatR 13 or later which requires a commercial license, you can configure the license key:
+
+```csharp
+// Option 1: Set license key directly
+builder.Services.AddMediator(typeof(Program).Assembly)
+    .WithLicenseKey("your-license-key-here");
+
+// Option 2: Use environment variable (MEDIATR_LICENSE_KEY by default)
+builder.Services.AddMediator(typeof(Program).Assembly)
+    .WithLicenseKeyFromEnvironment();
+
+// Option 3: Use custom environment variable
+builder.Services.AddMediator(typeof(Program).Assembly)
+    .WithLicenseKeyFromEnvironment("MY_CUSTOM_MEDIATR_LICENSE_VAR");
+```
+
 
 ## Example
 

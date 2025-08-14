@@ -1,1 +1,3 @@
 #nullable enable
+Workleap.Extensions.MediatR.MediatorBuilder.WithLicenseKey(string! licenseKey) -> Workleap.Extensions.MediatR.MediatorBuilder!
+Workleap.Extensions.MediatR.MediatorBuilder.WithLicenseKeyFromEnvironment(string! environmentVariable = "MEDIATR_LICENSE_KEY") -> Workleap.Extensions.MediatR.MediatorBuilder!
