@@ -34,6 +34,37 @@ builder.Services.AddMediator(
     typeof(Program).Assembly);
 ```
 
+## MediatR License Configuration
+
+This library automatically handles MediatR license configuration. The license key can be provided through:
+
+1. **Environment variable**: Set the `MEDIATR_LICENSE_KEY` environment variable
+2. **Application configuration**: Add the `MEDIATR_LICENSE_KEY` key to your configuration (e.g., appsettings.json, user secrets, etc.)
+
+### Using environment variable
+
+```bash
+# Set environment variable
+export MEDIATR_LICENSE_KEY="your-license-key-here"
+```
+
+### Using appsettings.json
+
+```json
+{
+  "MEDIATR_LICENSE_KEY": "your-license-key-here"
+}
+```
+
+### Manual configuration
+
+You can also set the license key manually using the configuration overload:
+
+```csharp
+builder.Services.AddMediator(
+    cfg => cfg.LicenseKey = "your-license-key-here",
+    typeof(Program).Assembly);
+```
 
 ## Example
 

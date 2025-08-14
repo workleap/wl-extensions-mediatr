@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+
     <ProjectReference Include="..\Workleap.Extensions.MediatR.Analyzers\Workleap.Extensions.MediatR.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Workleap.Extensions.MediatR.ApplicationInsights\Workleap.Extensions.MediatR.ApplicationInsights.csproj" />
     <ProjectReference Include="..\Workleap.Extensions.MediatR\Workleap.Extensions.MediatR.csproj" />

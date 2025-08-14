@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Workleap.Extensions.MediatR.Tests;
 
@@ -14,6 +15,11 @@ internal sealed class InMemoryLoggerTracker : ILoggerProvider, ILogger
 
     public ILogger CreateLogger(string categoryName)
     {
+        if (categoryName == "LuckyPennySoftware.MediatR.License")
+        {
+            return NullLogger.Instance;
+        }
+
         return this;
     }
 
