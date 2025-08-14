@@ -83,7 +83,7 @@ public sealed class MediatorBuilder
 
     private static void ConfigureDefaultConfiguration(MediatRServiceConfiguration configuration)
     {
-        configuration.LicenseKey = Environment.GetEnvironmentVariable("MEDIATR_LICENSE_KEY"); // TODO from IConfiguration?
+        configuration.LicenseKey = Environment.GetEnvironmentVariable("MEDIATR_LICENSE_KEY");
 
         // By default, register IMediator as a singleton, we don't want to create a new instance of Mediator every time
         // Request handlers are still registered as transient though
