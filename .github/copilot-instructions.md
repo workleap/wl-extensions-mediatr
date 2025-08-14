@@ -18,7 +18,7 @@ Always reference these instructions first and fallback to search or bash command
   - Debug build: `dotnet build -c Debug` -- takes 9 seconds after restore. NEVER CANCEL. Set timeout to 30+ minutes.
   - Release build may fail with GitVersion issues in non-CI environments. Use Debug build for development.
 - **Run tests**:
-  - `dotnet test -c Debug --no-build --verbosity normal` -- takes 8 seconds. NEVER CANCEL. Set timeout to 30+ minutes.
+  - `dotnet test -c Debug --no-build --verbosity normal` -- takes ~8 seconds if already built, ~17 seconds if a build is required. NEVER CANCEL. Set timeout to 30+ minutes.
   - All 86 tests should pass when environment is properly configured.
 - **Alternative: Use PowerShell build script** (may fail with GitVersion in non-CI):
   - `pwsh ./Build.ps1` -- runs clean, build, test, pack sequence
