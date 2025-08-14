@@ -2,6 +2,9 @@ using System.Reflection;
 using MediatR;
 using MediatR.Pipeline;
 using MediatR.Registration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Workleap.Extensions.MediatR;
@@ -22,6 +25,7 @@ public sealed class MediatorBuilder
 
         EnsureAddMediatorIsOnlyCalledOnce(services);
         services.AddMediatR(ConfigurationFactory(RegisterAssemblies, configure));
+        services.AddSingleton<IStartupFilter, LicenseProvider>();
     }
 
     internal MediatorBuilder(IServiceCollection services, IEnumerable<Type> handlerAssemblyMarkerTypes, Action<MediatRServiceConfiguration>? configure)
@@ -79,6 +83,8 @@ public sealed class MediatorBuilder
 
     private static void ConfigureDefaultConfiguration(MediatRServiceConfiguration configuration)
     {
+        configuration.LicenseKey = Environment.GetEnvironmentVariable("MEDIATR_LICENSE_KEY"); // TODO from IConfiguration?
+
         // By default, register IMediator as a singleton, we don't want to create a new instance of Mediator every time
         // Request handlers are still registered as transient though
         configuration.Lifetime = ServiceLifetime.Singleton;
@@ -142,5 +148,23 @@ public sealed class MediatorBuilder
             typeof(IRequestPostProcessor<,>), postProcessorServiceDescriptors, assembliesToRegister, true, configuration, CancellationToken.None,
         });
         configuration.RequestPostProcessorsToRegister.AddRange(postProcessorServiceDescriptors);
+    }
+
+    private sealed class LicenseProvider : IStartupFilter
+    {
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+        {
+            return app =>
+            {
+                var mediatrOptions = app.ApplicationServices.GetService<MediatRServiceConfiguration>();
+                var configuration = app.ApplicationServices.GetService<IConfiguration>();
+                if (mediatrOptions != null && configuration != null && string.IsNullOrWhiteSpace(mediatrOptions.LicenseKey))
+                {
+                    mediatrOptions.LicenseKey = configuration["MEDIATR_LICENSE_KEY"];
+                }
+
+                next(app);
+            };
+        }
     }
 }
