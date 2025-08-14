@@ -14,7 +14,7 @@ Always reference these instructions first and fallback to search or bash command
   - `/tmp/dotnet-install.sh --version 8.0.8 --runtime dotnet --install-dir ~/.dotnet`
 - **Build the project**:
   - Navigate to `src/` directory: `cd src`
-  - First restore: `dotnet restore` -- takes 50 seconds initially, 2 seconds subsequently. NEVER CANCEL. Set timeout to 10+ minutes.
+  - First restore: `dotnet restore` -- takes 50 seconds initially, 2 seconds subsequently. NEVER CANCEL. Set timeout to 30+ minutes.
   - Debug build: `dotnet build -c Debug` -- takes 9 seconds after restore. NEVER CANCEL. Set timeout to 30+ minutes.
   - Release build may fail with GitVersion issues in non-CI environments. Use Debug build for development.
 - **Run tests**:
