@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -44,7 +44,7 @@ public sealed class ServiceRegistrationAnalyzer : DiagnosticAnalyzer
         public AnalyzerImplementation(Compilation compilation)
         {
             this._serviceCollectionType = compilation.GetBestTypeByMetadataName(KnownSymbolNames.ServiceCollectionInterface, KnownSymbolNames.MsExtDIAbstractionsAssembly)!;
-            this._serviceCollectionExtensionsType = compilation.GetBestTypeByMetadataName(KnownSymbolNames.ServiceCollectionExtensionsClass, KnownSymbolNames.MediatRAssembly)!;
+            this._serviceCollectionExtensionsType = compilation.GetBestTypeByMetadataName(KnownSymbolNames.MediatRServiceCollectionExtensionsClass, KnownSymbolNames.MediatRAssembly)!;
         }
 
         public bool IsValid => this._serviceCollectionExtensionsType != null;

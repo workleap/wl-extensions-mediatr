@@ -1,4 +1,4 @@
-﻿namespace Workleap.Extensions.MediatR.Analyzers.Internals;
+namespace Workleap.Extensions.MediatR.Analyzers.Internals;
 
 internal static class KnownSymbolNames
 {
@@ -8,7 +8,7 @@ internal static class KnownSymbolNames
     public const string WorkleapExtMediatRAssembly = "Workleap.Extensions.MediatR";
 
     public const string ServiceCollectionInterface = "Microsoft.Extensions.DependencyInjection.IServiceCollection";
-    public const string ServiceCollectionExtensionsClass = "Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions";
+    public const string MediatRServiceCollectionExtensionsClass = "Microsoft.Extensions.DependencyInjection.MediatRServiceCollectionExtensions";
     public const string WorkleapMediatorExtensionsClass = "MediatR.MediatorExtensions";
 
     public const string BaseRequestInterface = "MediatR.IBaseRequest";
