@@ -44,7 +44,11 @@ public sealed class ServiceRegistrationAnalyzer : DiagnosticAnalyzer
         public AnalyzerImplementation(Compilation compilation)
         {
             this._serviceCollectionType = compilation.GetBestTypeByMetadataName(KnownSymbolNames.ServiceCollectionInterface, KnownSymbolNames.MsExtDIAbstractionsAssembly)!;
-            this._serviceCollectionExtensionsType = compilation.GetBestTypeByMetadataName(KnownSymbolNames.MediatRServiceCollectionExtensionsClass, KnownSymbolNames.MediatRAssembly)!;
+
+            // Class name changed in MediatR 13.1, this is for backward compatibility
+            this._serviceCollectionExtensionsType =
+                compilation.GetBestTypeByMetadataName(KnownSymbolNames.MediatRServiceCollectionExtensionsClass, KnownSymbolNames.MediatRAssembly) ??
+                compilation.GetBestTypeByMetadataName(KnownSymbolNames.MediatROldServiceCollectionExtensionsClass, KnownSymbolNames.MediatRAssembly)!;
         }
 
         public bool IsValid => this._serviceCollectionExtensionsType != null;

@@ -14,6 +14,7 @@ public sealed class HostBuilderTests
         var builder = WebApplication.CreateBuilder();
         builder.Host.UseDefaultServiceProvider(options =>
         {
+            // Disabling build on validation since some private classes (like TestState) are not registered
             options.ValidateOnBuild = false;
         });
 
