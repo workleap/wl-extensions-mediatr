@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Workleap.Extensions.MediatR.Tests;
 public sealed class HostBuilderTests
@@ -11,6 +12,12 @@ public sealed class HostBuilderTests
     public async Task SetLicenseFromConfiguration()
     {
         var builder = WebApplication.CreateBuilder();
+        builder.Host.UseDefaultServiceProvider(options =>
+        {
+            // Disabling build on validation since some private classes (like TestState) are not registered
+            options.ValidateOnBuild = false;
+        });
+
         builder.Services.AddMediator(typeof(HostBuilderTests).Assembly);
         builder.Configuration.AddInMemoryCollection([KeyValuePair.Create<string, string?>("MEDIATR_LICENSE_KEY", "License")]);
 
