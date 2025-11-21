@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Workleap.Extensions.MediatR.Tests;
+
 public sealed class HostBuilderTests
 {
     [Fact]

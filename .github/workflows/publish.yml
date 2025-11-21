@@ -31,8 +31,12 @@ jobs:
           azure-subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           keyvault-name: ${{ vars.IDP_CICD_KEYVAULT_NAME }}
           secret-name: "nuget-org-workleap-api-key"
-
+          
       - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: ./global.json
+          dotnet-version: |
+            8.0.x
 
       - run: ./Build.ps1
         shell: pwsh
