@@ -32,4 +32,4 @@ jobs:
             8.0.x
 
       - name: Restore solution
-        run: dotnet restore
+        run: dotnet restore src/
