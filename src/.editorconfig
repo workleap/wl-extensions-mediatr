@@ -1,6 +1,6 @@
 [*.json]
 indent_size = 2
-
+ 
 [*.{cs,vb}]
 dotnet_diagnostic.CA1000.severity = warning
 dotnet_diagnostic.CA1001.severity = warning
