@@ -1,4 +1,4 @@
-# Workleap.Extensions.MediatR
+# Workleap.Extensions.MediatR (test)
 
 [![nuget](https://img.shields.io/nuget/v/Workleap.Extensions.MediatR.svg?logo=nuget)](https://www.nuget.org/packages/Workleap.Extensions.MediatR/)
 [![build](https://img.shields.io/github/actions/workflow/status/workleap/wl-extensions-mediatr/publish.yml?logo=github&branch=main)](https://github.com/workleap/wl-extensions-mediatr/actions/workflows/publish.yml)
