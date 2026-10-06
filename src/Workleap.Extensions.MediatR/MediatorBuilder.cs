@@ -42,6 +42,7 @@ public sealed class MediatorBuilder
 
         EnsureAddMediatorIsOnlyCalledOnce(services);
         services.AddMediatR(ConfigurationFactory(RegisterAssembliesOfTypes, configure));
+        services.AddSingleton<IStartupFilter, LicenseProvider>();
     }
 
     public IServiceCollection Services { get; }

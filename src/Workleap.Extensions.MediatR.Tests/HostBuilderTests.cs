@@ -12,6 +12,17 @@ public sealed class HostBuilderTests
     [Fact]
     public async Task SetLicenseFromConfiguration()
     {
+        await AssertLicenseIsSetFromConfiguration(services => services.AddMediator(typeof(HostBuilderTests).Assembly));
+    }
+
+    [Fact]
+    public async Task SetLicenseFromConfiguration_WhenRegisteredWithMarkerTypes()
+    {
+        await AssertLicenseIsSetFromConfiguration(services => services.AddMediator(typeof(HostBuilderTests)));
+    }
+
+    private static async Task AssertLicenseIsSetFromConfiguration(Action<IServiceCollection> addMediator)
+    {
         var builder = WebApplication.CreateBuilder();
         builder.Host.UseDefaultServiceProvider(options =>
         {
@@ -19,7 +30,7 @@ public sealed class HostBuilderTests
             options.ValidateOnBuild = false;
         });
 
-        builder.Services.AddMediator(typeof(HostBuilderTests).Assembly);
+        addMediator(builder.Services);
         builder.Configuration.AddInMemoryCollection([KeyValuePair.Create<string, string?>("MEDIATR_LICENSE_KEY", "License")]);
 
         // The license is check in the constructor of the Mediator.
